@@ -13,7 +13,7 @@ import { Router } from '@angular/router';
   selector: 'app-navbar',
   templateUrl: './navbar.component.html',
 })
-export class NavbarComponent  {
+export class NavbarComponent {
   faBell = faBell;
   faInfoCircle = faInfoCircle;
   faClose = faClose;
@@ -27,10 +27,10 @@ export class NavbarComponent  {
   constructor(
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) { }
 
-    logout(){
-      this.authService.logout();
-      this.router.navigate(['/login']);
-    }
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
+  }
 }

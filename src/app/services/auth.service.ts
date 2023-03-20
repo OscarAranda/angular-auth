@@ -4,9 +4,10 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from '@environments/environment';
 import { switchMap, tap } from 'rxjs/operators';
 import { TokenService } from './token.service';
-import { ResponseLogin } from '@models/auth.model' ;
-import { User } from '@models/user.model' ;
+import { ResponseLogin } from '@models/auth.model';
+import { User } from '@models/user.model';
 import { BehaviorSubject, pipe } from 'rxjs';
+import { checkToken } from '@interceptors/token.interceptor';
 
 @Injectable({
   providedIn: 'root'
@@ -14,65 +15,62 @@ import { BehaviorSubject, pipe } from 'rxjs';
 export class AuthService {
 
   apiUrl = environment.API_URL;
-  user$ = new BehaviorSubject< User | null >( null );
+  user$ = new BehaviorSubject<User | null>(null);
 
   constructor(
     private http: HttpClient,
     private tokenService: TokenService
   ) { }
 
-  getDataUser(){
+  getDataUser() {
     return this.user$.getValue();
   }
 
 
-  login(email: string, password: string){
-    return this.http.post<ResponseLogin>(`${this.apiUrl}/api/v1/auth/login`,{ email, password})
-    .pipe(
-      tap( response =>{
-        this.tokenService.saveToken( response.access_token );
-      })
-    );
+  login(email: string, password: string) {
+    return this.http.post<ResponseLogin>(`${this.apiUrl}/api/v1/auth/login`, { email, password })
+      .pipe(
+        tap(response => {
+          this.tokenService.saveToken(response.access_token);
+        })
+      );
   }
 
-  register(name: string, email: string, password: string ){
-    return this.http.post(`${this.apiUrl}/api/v1/auth/register`,{ name, email, password});
+  register(name: string, email: string, password: string) {
+    return this.http.post(`${this.apiUrl}/api/v1/auth/register`, { name, email, password });
   }
 
-  registerAndLogin(){
-
-  }
-
-  isAvailable(email: string){
-    return this.http.post<{isAvailable : boolean}>(`${this.apiUrl}/api/v1/auth/is-available`,{ email });
+  registerAndLogin() {
 
   }
 
-  recovery( email: string ){
-    return this.http.post(`${this.apiUrl}/api/v1/auth/recovery`,{ email });
+  isAvailable(email: string) {
+    return this.http.post<{ isAvailable: boolean }>(`${this.apiUrl}/api/v1/auth/is-available`, { email });
 
   }
 
-  changePassword( token: string, newPassword: string){
-    return this.http.post(`${this.apiUrl}/api/v1/auth/change-password`,{ token, newPassword });
+  recovery(email: string) {
+    return this.http.post(`${this.apiUrl}/api/v1/auth/recovery`, { email });
 
   }
 
-  getProfile(){
-    const token = this.tokenService.getToken();
-    return this.http.get<User>(`${this.apiUrl}/api/v1/auth/profile`, {
-      headers: {
-        Authorization: `Bearer ${ token }`
-      }
-    }).pipe(
-      tap( user =>{
-        this.user$.next( user );
-      })
-    );
+  changePassword(token: string, newPassword: string) {
+    return this.http.post(`${this.apiUrl}/api/v1/auth/change-password`, { token, newPassword });
+
+  }
+
+  getProfile() {
+
+    return this.http.get<User>(`${this.apiUrl}/api/v1/auth/profile`, { context: checkToken() })
+      .pipe(
+        tap(user => {
+          this.user$.next(user);
+        })
+      );
   }
 
 
-  logout(){
+  logout() {
     this.tokenService.removeToken();
   }
 

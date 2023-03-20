@@ -26,9 +26,10 @@ export class UsersTableComponent implements OnInit  {
       .subscribe( users => {
         this.dataSource.init( users );
       })
-      
-     this.user = this.authService.getDataUser();
-     console.log( this.user )
+      this.authService.user$
+      .subscribe( user => {
+        this.user = user;
+       })
   }
   
 
