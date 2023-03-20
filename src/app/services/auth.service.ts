@@ -6,7 +6,7 @@ import { switchMap, tap } from 'rxjs/operators';
 import { TokenService } from './token.service';
 import { ResponseLogin } from '@models/auth.model' ;
 import { User } from '@models/user.model' ;
-import { pipe } from 'rxjs';
+import { BehaviorSubject, pipe } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -14,11 +14,17 @@ import { pipe } from 'rxjs';
 export class AuthService {
 
   apiUrl = environment.API_URL;
+  user$ = new BehaviorSubject< User | null >( null );
 
   constructor(
     private http: HttpClient,
     private tokenService: TokenService
   ) { }
+
+  getDataUser(){
+    return this.user$.getValue();
+  }
+
 
   login(email: string, password: string){
     return this.http.post<ResponseLogin>(`${this.apiUrl}/api/v1/auth/login`,{ email, password})
@@ -54,11 +60,15 @@ export class AuthService {
 
   getProfile(){
     const token = this.tokenService.getToken();
-    return this.http.get<User>(`${this.apiUrl}/api/v1/profile`, {
+    return this.http.get<User>(`${this.apiUrl}/api/v1/auth/profile`, {
       headers: {
         Authorization: `Bearer ${ token }`
       }
-    });
+    }).pipe(
+      tap( user =>{
+        this.user$.next( user );
+      })
+    );
   }
 
 
