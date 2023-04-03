@@ -1,10 +1,12 @@
 import { Component } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
-import { faPen, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
+import { faPen, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from '@services/auth.service'
+
 import { RequestStatus} from '@models/request-status.model'
+
 
 @Component({
   selector: 'app-login-form',
